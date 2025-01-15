@@ -41,16 +41,17 @@
   color: #888;
 }
 
-.input-field {
-  height: 2rem;
-  padding-left: 0.5rem;
-  outline: none;
-  width: 20rem;
-  margin: 0.5rem;
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-.send-scores {
-  margin: 1rem 0;
+.input-field {
+  height: 1.5rem;
+  padding-left: 0.5rem;
+  width: 20rem;
 }
 
 table {

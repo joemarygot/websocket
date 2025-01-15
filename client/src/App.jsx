@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import io from "socket.io-client";
+import "./App.css";
+import Input from "./component/Input";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [score, setScores] = useState({});
+  const [scores, setAllScores] = useState([]);
+  const socket = io("localhost:3000");
 
+  function connectSocket() {
+    socket.on("connection", (socket) => {
+      console.log(socket);
+    });
+  }
+
+  function handleInput(event) {
+    let { name, value } = event.target;
+    console.log({ [name]: value });
+    let currentObj = { [name]: value };
+
+    setScores((prev) => ({ ...prev, ...currentObj }));
+  }
+
+  function sendScores() {
+    socket.emit("scores", score);
+
+    socket.on("playerScores", (playerScores) => {
+      setAllScores(playerScores);
+    });
+  }
+
+  useEffect(() => {
+    connectSocket();
+  }, []);
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>React Multiplayer Dashboard</h1>
+      <Input
+        name="name"
+        placeholder="Enter your Name"
+        handleInput={handleInput}
+      />
+      <Input
+        name="score"
+        placeholder="Enter your Score"
+        handleInput={handleInput}
+      />
+      <button className="send-scores" onClick={sendScores}>
+        Publish Score
+      </button>
+
+      {scores.length > 0 ? (
+        <table>
+          <tbody>
+            <tr>
+              <th>Name</th>
+              <th>Score</th>
+            </tr>
+            {scores.map((score) => (
+              <tr>
+                <td>{score?.name}</td>
+                <td>{score?.score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <></>
+      )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
